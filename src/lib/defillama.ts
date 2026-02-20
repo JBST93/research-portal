@@ -100,6 +100,57 @@ export async function getAllProtocolData(): Promise<ProtocolData[]> {
   });
 }
 
+export async function getTopProtocols(limit: number = 100): Promise<ProtocolData[]> {
+  const [allProtocols, feesOverview] = await Promise.all([
+    fetchJSON(`${BASE_URL}/protocols`),
+    fetchJSON(
+      `${BASE_URL}/overview/fees?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true`
+    ),
+  ]);
+
+  if (!allProtocols) return [];
+
+  // Build fees lookup by slug
+  const feesMap = new Map<string, { fees24h: number; revenue24h: number }>();
+  if (feesOverview?.protocols) {
+    for (const p of feesOverview.protocols) {
+      const slug = p.slug || p.name?.toLowerCase().replace(/\s+/g, "-");
+      if (slug) {
+        const existing = feesMap.get(slug);
+        feesMap.set(slug, {
+          fees24h: (existing?.fees24h || 0) + (p.total24h || 0),
+          revenue24h: (existing?.revenue24h || 0) + (p.totalRevenue24h || 0),
+        });
+      }
+    }
+  }
+
+  // Filter to non-child protocols, sort by TVL, take top N
+  const top = allProtocols
+    .filter((p: DefiLlamaProtocol & { parentProtocol?: string }) =>
+      !p.parentProtocol && p.tvl > 0 && p.slug
+    )
+    .sort((a: DefiLlamaProtocol, b: DefiLlamaProtocol) => b.tvl - a.tvl)
+    .slice(0, limit);
+
+  return top.map((p: DefiLlamaProtocol & { category?: string }) => {
+    const fees = feesMap.get(p.slug);
+    return {
+      slug: p.slug,
+      name: p.name,
+      category: p.category || "",
+      tvl: p.tvl,
+      change_1d: p.change_1d ?? null,
+      change_7d: p.change_7d ?? null,
+      chains: p.chains || [],
+      logo: p.logo || "",
+      fees24h: fees?.fees24h ?? null,
+      revenue24h: fees?.revenue24h ?? null,
+      volume24h: null,
+    };
+  });
+}
+
 export async function getProtocolDetail(
   slug: string
 ): Promise<ProtocolDetail | null> {

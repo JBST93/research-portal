@@ -26,14 +26,13 @@ interface Props {
 export default async function ProtocolPage({ params }: Props) {
   const { slug } = await params;
   const config = getProtocolConfig(slug);
-  if (!config) notFound();
 
   const isHL = slug === "hyperliquid";
 
   const [detail, proposals, hlOverview, hlFunding, hlVault] = await Promise.all(
     [
       getProtocolDetail(slug),
-      config.snapshotSpace
+      config?.snapshotSpace
         ? getProtocolProposals(config.snapshotSpace, 10)
         : Promise.resolve([]),
       isHL ? getHLOverview() : Promise.resolve(null),
@@ -79,12 +78,12 @@ export default async function ProtocolPage({ params }: Props) {
             {detail.name}
           </h1>
           <p className="text-sm text-terminal-muted mt-1">
-            {config.description}
+            {config?.description || detail.description}
           </p>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-xs px-2 py-1 border border-terminal-border-bright text-terminal-muted">
-            {config.category}
+            {config?.category || detail.category}
           </span>
           <RiskBadge level={risk} />
         </div>

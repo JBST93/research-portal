@@ -121,6 +121,8 @@ export async function getFundingComparisons(): Promise<HLFundingComparison[]> {
     };
 
     for (const [exchange, info] of exchanges) {
+      if (!info || info.fundingRate === undefined || info.fundingRate === null) continue;
+
       const entry = {
         rate: parseFloat(info.fundingRate),
         interval: info.fundingIntervalHours,

@@ -23,8 +23,16 @@ export default function RootLayout({
               v1.0
             </span>
           </a>
-          <div className="text-xs text-terminal-dim font-mono">
-            Data: DeFiLlama | Refresh: 5min
+          <div className="flex items-center gap-4">
+            <a
+              href="/protocols"
+              className="text-xs text-terminal-muted hover:text-terminal-green font-mono transition"
+            >
+              Top 100
+            </a>
+            <span className="text-xs text-terminal-dim font-mono">
+              Data: DeFiLlama | Refresh: 5min
+            </span>
           </div>
         </header>
         <main className="max-w-7xl mx-auto px-6 py-6">{children}</main>
