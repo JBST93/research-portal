@@ -5,6 +5,7 @@ export interface ProtocolConfig {
   description: string;
   website: string;
   chains: string[];
+  snapshotSpace?: string;
 }
 
 export interface ProtocolData {
@@ -52,3 +53,22 @@ export interface Alert {
 }
 
 export type RiskLevel = 1 | 2 | 3 | 4;
+
+export interface Proposal {
+  id: string;
+  title: string;
+  state: "active" | "closed" | "pending";
+  space: string;
+  spaceName: string;
+  protocolSlug: string;
+  author: string;
+  created: number;
+  start: number;
+  end: number;
+  choices: string[];
+  scores: number[];
+  scoresTotal: number;
+  votes: number;
+  quorum: number;
+  link: string;
+}

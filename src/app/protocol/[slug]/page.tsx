@@ -2,11 +2,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getProtocolDetail } from "@/lib/defillama";
 import { getProtocolConfig } from "@/lib/protocols";
+import { getProtocolProposals } from "@/lib/snapshot";
 import { calculateRisk } from "@/lib/risk";
 import { formatUSD, formatPercent, formatPercentColor } from "@/lib/format";
 import MetricCard from "@/components/MetricCard";
 import RiskBadge from "@/components/RiskBadge";
 import TvlChart from "@/components/TvlChart";
+import GovernanceFeed from "@/components/GovernanceFeed";
 
 export const revalidate = 300;
 
@@ -19,7 +21,12 @@ export default async function ProtocolPage({ params }: Props) {
   const config = getProtocolConfig(slug);
   if (!config) notFound();
 
-  const detail = await getProtocolDetail(slug);
+  const [detail, proposals] = await Promise.all([
+    getProtocolDetail(slug),
+    config.snapshotSpace
+      ? getProtocolProposals(config.snapshotSpace, 10)
+      : Promise.resolve([]),
+  ]);
   if (!detail) notFound();
 
   const risk = calculateRisk({
@@ -133,6 +140,13 @@ export default async function ProtocolPage({ params }: Props) {
           </div>
         </div>
       )}
+
+      {/* Governance */}
+      <GovernanceFeed
+        proposals={proposals}
+        showProtocol={false}
+        title={`Governance — ${detail.name}`}
+      />
 
       {/* Links */}
       <div className="border border-terminal-border p-4">

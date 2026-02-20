@@ -9,6 +9,7 @@ export const PROTOCOLS: ProtocolConfig[] = [
       "Perpetual futures DEX on its own L1 with on-chain order book. High throughput, no gas fees for trading.",
     website: "https://hyperliquid.xyz",
     chains: ["Hyperliquid"],
+    // No Snapshot space — uses native on-chain governance
   },
   {
     slug: "aave",
@@ -18,6 +19,7 @@ export const PROTOCOLS: ProtocolConfig[] = [
       "Largest decentralized lending protocol. Multi-chain with variable and stable rate borrowing.",
     website: "https://aave.com",
     chains: ["Ethereum", "Polygon", "Arbitrum", "Optimism", "Avalanche", "Base"],
+    snapshotSpace: "aave.eth",
   },
   {
     slug: "morpho",
@@ -27,6 +29,7 @@ export const PROTOCOLS: ProtocolConfig[] = [
       "Lending protocol optimizer and standalone lending markets. Improves capital efficiency for lenders and borrowers.",
     website: "https://morpho.org",
     chains: ["Ethereum", "Base"],
+    snapshotSpace: "morpho.eth",
   },
   {
     slug: "uniswap",
@@ -36,6 +39,7 @@ export const PROTOCOLS: ProtocolConfig[] = [
       "Largest decentralized exchange by volume. AMM-based with concentrated liquidity (v3/v4) and intent-based routing (UniswapX).",
     website: "https://uniswap.org",
     chains: ["Ethereum", "Polygon", "Arbitrum", "Optimism", "Base", "BNB Chain"],
+    snapshotSpace: "uniswapgovernance.eth",
   },
   {
     slug: "gmx",
@@ -45,6 +49,7 @@ export const PROTOCOLS: ProtocolConfig[] = [
       "Perpetual futures and spot DEX on Arbitrum and Avalanche. Uses multi-asset liquidity pool (GLP/GM).",
     website: "https://gmx.io",
     chains: ["Arbitrum", "Avalanche"],
+    snapshotSpace: "gmx.eth",
   },
   {
     slug: "dydx",
@@ -54,6 +59,7 @@ export const PROTOCOLS: ProtocolConfig[] = [
       "Perpetual futures exchange built on its own Cosmos appchain. Order book model with off-chain matching.",
     website: "https://dydx.exchange",
     chains: ["dYdX"],
+    snapshotSpace: "dydxgov.eth",
   },
   {
     slug: "synthetix",
@@ -63,9 +69,23 @@ export const PROTOCOLS: ProtocolConfig[] = [
       "Derivatives liquidity protocol powering perps markets. Provides liquidity layer for front-ends like Kwenta.",
     website: "https://synthetix.io",
     chains: ["Ethereum", "Optimism", "Base"],
+    snapshotSpace: "snxgov.eth",
   },
 ];
 
 export function getProtocolConfig(slug: string): ProtocolConfig | undefined {
   return PROTOCOLS.find((p) => p.slug === slug);
+}
+
+export function getSnapshotSpaces(): { space: string; protocolSlug: string }[] {
+  return PROTOCOLS.filter((p) => p.snapshotSpace).map((p) => ({
+    space: p.snapshotSpace!,
+    protocolSlug: p.slug,
+  }));
+}
+
+export function getProtocolBySnapshotSpace(
+  space: string
+): ProtocolConfig | undefined {
+  return PROTOCOLS.find((p) => p.snapshotSpace === space);
 }
