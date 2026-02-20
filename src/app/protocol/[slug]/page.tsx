@@ -3,12 +3,19 @@ import Link from "next/link";
 import { getProtocolDetail } from "@/lib/defillama";
 import { getProtocolConfig } from "@/lib/protocols";
 import { getProtocolProposals } from "@/lib/snapshot";
+import {
+  getHLOverview,
+  getFundingComparisons,
+  getHLPVault,
+} from "@/lib/hyperliquid";
 import { calculateRisk } from "@/lib/risk";
 import { formatUSD, formatPercent, formatPercentColor } from "@/lib/format";
 import MetricCard from "@/components/MetricCard";
 import RiskBadge from "@/components/RiskBadge";
 import TvlChart from "@/components/TvlChart";
 import GovernanceFeed from "@/components/GovernanceFeed";
+import HLMarketsTable from "@/components/HLMarketsTable";
+import HLFundingComparisonTable from "@/components/HLFundingComparison";
 
 export const revalidate = 300;
 
@@ -21,12 +28,19 @@ export default async function ProtocolPage({ params }: Props) {
   const config = getProtocolConfig(slug);
   if (!config) notFound();
 
-  const [detail, proposals] = await Promise.all([
-    getProtocolDetail(slug),
-    config.snapshotSpace
-      ? getProtocolProposals(config.snapshotSpace, 10)
-      : Promise.resolve([]),
-  ]);
+  const isHL = slug === "hyperliquid";
+
+  const [detail, proposals, hlOverview, hlFunding, hlVault] = await Promise.all(
+    [
+      getProtocolDetail(slug),
+      config.snapshotSpace
+        ? getProtocolProposals(config.snapshotSpace, 10)
+        : Promise.resolve([]),
+      isHL ? getHLOverview() : Promise.resolve(null),
+      isHL ? getFundingComparisons() : Promise.resolve([]),
+      isHL ? getHLPVault() : Promise.resolve(null),
+    ]
+  );
   if (!detail) notFound();
 
   const risk = calculateRisk({
@@ -76,40 +90,101 @@ export default async function ProtocolPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Key metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
-          label="TVL"
-          value={formatUSD(detail.tvl)}
-          subValue={formatPercent(detail.change_1d) + " 24h"}
-          subColor={formatPercentColor(detail.change_1d)}
-        />
-        <MetricCard
-          label="Fees 24h"
-          value={formatUSD(detail.fees24h)}
-          subValue={detail.fees30d ? `${formatUSD(detail.fees30d)} 30d` : undefined}
-        />
-        <MetricCard
-          label="Revenue 24h"
-          value={formatUSD(detail.revenue24h)}
-          subValue={
-            detail.revenue30d
-              ? `${formatUSD(detail.revenue30d)} 30d`
-              : undefined
-          }
-        />
-        <MetricCard
-          label="Chains"
-          value={detail.chains.length.toString()}
-          subValue={detail.chains.slice(0, 3).join(", ")}
-        />
-      </div>
+      {/* Key metrics — enhanced for Hyperliquid */}
+      {isHL && hlOverview ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <MetricCard
+            label="TVL"
+            value={formatUSD(detail.tvl)}
+            subValue={formatPercent(detail.change_1d) + " 24h"}
+            subColor={formatPercentColor(detail.change_1d)}
+          />
+          <MetricCard
+            label="Total Open Interest"
+            value={formatUSD(hlOverview.totalOI)}
+          />
+          <MetricCard
+            label="24h Volume"
+            value={formatUSD(hlOverview.totalVolume24h)}
+          />
+          <MetricCard
+            label="Active Markets"
+            value={hlOverview.marketCount.toString()}
+          />
+          <MetricCard
+            label="Fees 24h"
+            value={formatUSD(detail.fees24h)}
+            subValue={
+              detail.fees30d
+                ? `${formatUSD(detail.fees30d)} 30d`
+                : undefined
+            }
+          />
+          {hlVault && (
+            <MetricCard
+              label="HLP Vault AUM"
+              value={formatUSD(hlVault.aum)}
+              subValue={`PnL today: ${formatUSD(hlVault.pnlDay)}`}
+              subColor={
+                hlVault.pnlDay >= 0
+                  ? "text-terminal-green"
+                  : "text-terminal-red"
+              }
+            />
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <MetricCard
+            label="TVL"
+            value={formatUSD(detail.tvl)}
+            subValue={formatPercent(detail.change_1d) + " 24h"}
+            subColor={formatPercentColor(detail.change_1d)}
+          />
+          <MetricCard
+            label="Fees 24h"
+            value={formatUSD(detail.fees24h)}
+            subValue={
+              detail.fees30d
+                ? `${formatUSD(detail.fees30d)} 30d`
+                : undefined
+            }
+          />
+          <MetricCard
+            label="Revenue 24h"
+            value={formatUSD(detail.revenue24h)}
+            subValue={
+              detail.revenue30d
+                ? `${formatUSD(detail.revenue30d)} 30d`
+                : undefined
+            }
+          />
+          <MetricCard
+            label="Chains"
+            value={detail.chains.length.toString()}
+            subValue={detail.chains.slice(0, 3).join(", ")}
+          />
+        </div>
+      )}
 
       {/* TVL Chart */}
       <TvlChart data={detail.tvlHistory} />
 
+      {/* Hyperliquid-specific sections */}
+      {isHL && hlOverview && (
+        <>
+          {/* Funding comparison */}
+          {hlFunding.length > 0 && (
+            <HLFundingComparisonTable comparisons={hlFunding} />
+          )}
+
+          {/* Markets table */}
+          <HLMarketsTable markets={hlOverview.markets} />
+        </>
+      )}
+
       {/* Chain breakdown */}
-      {sortedChains.length > 0 && (
+      {sortedChains.length > 0 && !isHL && (
         <div className="border border-terminal-border p-4">
           <div className="text-xs text-terminal-muted uppercase tracking-wider mb-3">
             TVL by Chain
@@ -118,7 +193,10 @@ export default async function ProtocolPage({ params }: Props) {
             {sortedChains.map(([chain, tvl]) => {
               const pct = detail.tvl > 0 ? (tvl / detail.tvl) * 100 : 0;
               return (
-                <div key={chain} className="flex items-center gap-3 font-mono text-sm">
+                <div
+                  key={chain}
+                  className="flex items-center gap-3 font-mono text-sm"
+                >
                   <span className="text-terminal-text w-28 truncate">
                     {chain}
                   </span>
