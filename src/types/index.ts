@@ -54,6 +54,21 @@ export interface Alert {
 
 export type RiskLevel = 1 | 2 | 3 | 4;
 
+export interface DexVolume {
+  name: string;
+  slug: string;
+  logo: string;
+  chains: string[];
+  volume24h: number;
+  volume7d: number;
+  volume30d: number;
+  change_1d: number | null;
+  change_7d: number | null;
+  change_1m: number | null;
+  dominance: number;
+  chainBreakdown: Record<string, number>;
+}
+
 export interface Proposal {
   id: string;
   title: string;

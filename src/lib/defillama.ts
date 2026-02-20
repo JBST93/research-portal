@@ -1,4 +1,4 @@
-import { ProtocolData, ProtocolDetail } from "@/types";
+import { ProtocolData, ProtocolDetail, DexVolume } from "@/types";
 import { PROTOCOLS } from "./protocols";
 
 const BASE_URL = "https://api.llama.fi";
@@ -149,6 +149,84 @@ export async function getTopProtocols(limit: number = 100): Promise<ProtocolData
       volume24h: null,
     };
   });
+}
+
+export async function getDexVolumes(limit: number = 100): Promise<{
+  dexes: DexVolume[];
+  totalVolume24h: number;
+  totalVolume7d: number;
+}> {
+  const data = await fetchJSON(
+    `${BASE_URL}/overview/dexs?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true`
+  );
+
+  if (!data?.protocols) return { dexes: [], totalVolume24h: 0, totalVolume7d: 0 };
+
+  // Filter to parent protocols only, sort by 24h volume
+  const parentMap = new Map<string, DexVolume>();
+
+  for (const p of data.protocols) {
+    const slug = p.slug || p.defillamaId || p.name?.toLowerCase().replace(/\s+/g, "-");
+    if (!slug || !p.total24h) continue;
+
+    // Aggregate child protocols under parents
+    const parentSlug = p.parentProtocol
+      ? p.parentProtocol.replace("parent#", "")
+      : slug;
+
+    const existing = parentMap.get(parentSlug);
+
+    // Build chain breakdown from breakdown24h
+    const chainBreakdown: Record<string, number> = {};
+    if (p.breakdown24h) {
+      for (const [chain, protocols] of Object.entries(p.breakdown24h)) {
+        const chainTotal = Object.values(protocols as Record<string, number>).reduce(
+          (sum: number, v) => sum + (typeof v === "number" ? v : 0),
+          0
+        );
+        chainBreakdown[chain] = (existing?.chainBreakdown?.[chain] || 0) + chainTotal;
+      }
+    }
+
+    if (existing) {
+      existing.volume24h += p.total24h || 0;
+      existing.volume7d += p.total7d || 0;
+      existing.volume30d += p.total30d || 0;
+      existing.chains = Array.from(new Set([...existing.chains, ...(p.chains || [])]));
+      existing.chainBreakdown = { ...existing.chainBreakdown, ...chainBreakdown };
+    } else {
+      parentMap.set(parentSlug, {
+        name: p.parentProtocol
+          ? parentSlug.charAt(0).toUpperCase() + parentSlug.slice(1)
+          : p.name || slug,
+        slug: parentSlug,
+        logo: p.logo || "",
+        chains: p.chains || [],
+        volume24h: p.total24h || 0,
+        volume7d: p.total7d || 0,
+        volume30d: p.total30d || 0,
+        change_1d: p.parentProtocol ? null : p.change_1d ?? null,
+        change_7d: p.parentProtocol ? null : p.change_7d ?? null,
+        change_1m: p.parentProtocol ? null : p.change_1m ?? null,
+        dominance: 0,
+        chainBreakdown,
+      });
+    }
+  }
+
+  const dexes = Array.from(parentMap.values())
+    .sort((a, b) => b.volume24h - a.volume24h)
+    .slice(0, limit);
+
+  const totalVolume24h = dexes.reduce((sum, d) => sum + d.volume24h, 0);
+  const totalVolume7d = dexes.reduce((sum, d) => sum + d.volume7d, 0);
+
+  // Calculate dominance
+  for (const d of dexes) {
+    d.dominance = totalVolume24h > 0 ? (d.volume24h / totalVolume24h) * 100 : 0;
+  }
+
+  return { dexes, totalVolume24h, totalVolume7d };
 }
 
 export async function getProtocolDetail(

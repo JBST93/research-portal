@@ -36,6 +36,13 @@ export default function RootLayout({
               >
                 Top 100
               </a>
+              <span className="text-bb-dim">|</span>
+              <a
+                href="/dex"
+                className="text-xxs text-bb-muted hover:text-bb-orange px-2 py-0.5 uppercase tracking-wider transition"
+              >
+                DEX Volumes
+              </a>
             </nav>
           </div>
           <div className="flex items-center gap-3">
