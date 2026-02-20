@@ -62,11 +62,11 @@ export default async function ProtocolPage({ params }: Props) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 pb-8">
       {/* Back nav */}
       <Link
         href="/"
-        className="text-terminal-dim hover:text-terminal-green text-sm font-mono transition"
+        className="text-xxs text-bb-dim hover:text-bb-orange uppercase tracking-wider font-mono transition"
       >
         &larr; Back to dashboard
       </Link>
@@ -74,15 +74,15 @@ export default async function ProtocolPage({ params }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-terminal-text">
+          <h1 className="text-lg font-bold text-bb-white">
             {detail.name}
           </h1>
-          <p className="text-sm text-terminal-muted mt-1">
+          <p className="text-xs text-bb-muted mt-0.5">
             {config?.description || detail.description}
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-xs px-2 py-1 border border-terminal-border-bright text-terminal-muted">
+        <div className="flex items-center gap-3">
+          <span className="text-xxs px-2 py-0.5 bg-bb-header border border-bb-border text-bb-orange-dim uppercase">
             {config?.category || detail.category}
           </span>
           <RiskBadge level={risk} />
@@ -91,7 +91,7 @@ export default async function ProtocolPage({ params }: Props) {
 
       {/* Key metrics — enhanced for Hyperliquid */}
       {isHL && hlOverview ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           <MetricCard
             label="TVL"
             value={formatUSD(detail.tvl)}
@@ -133,7 +133,7 @@ export default async function ProtocolPage({ params }: Props) {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <MetricCard
             label="TVL"
             value={formatUSD(detail.tvl)}
@@ -184,31 +184,27 @@ export default async function ProtocolPage({ params }: Props) {
 
       {/* Chain breakdown */}
       {sortedChains.length > 0 && !isHL && (
-        <div className="border border-terminal-border p-4">
-          <div className="text-xs text-terminal-muted uppercase tracking-wider mb-3">
-            TVL by Chain
-          </div>
-          <div className="space-y-2">
+        <div className="bg-bb-panel border border-bb-border">
+          <div className="bb-header">TVL by Chain</div>
+          <div className="divide-y divide-bb-border">
             {sortedChains.map(([chain, tvl]) => {
               const pct = detail.tvl > 0 ? (tvl / detail.tvl) * 100 : 0;
               return (
                 <div
                   key={chain}
-                  className="flex items-center gap-3 font-mono text-sm"
+                  className="flex items-center gap-3 font-mono text-xs px-3 py-1.5"
                 >
-                  <span className="text-terminal-text w-28 truncate">
-                    {chain}
-                  </span>
-                  <div className="flex-1 h-3 bg-terminal-border overflow-hidden">
+                  <span className="text-bb-text w-24 truncate">{chain}</span>
+                  <div className="flex-1 h-2 bg-bb-dim overflow-hidden">
                     <div
-                      className="h-full bg-terminal-green/60"
+                      className="h-full bg-bb-orange/60"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="text-terminal-muted text-xs w-20 text-right">
+                  <span className="text-bb-muted text-xxs w-16 text-right">
                     {formatUSD(tvl)}
                   </span>
-                  <span className="text-terminal-dim text-xs w-14 text-right">
+                  <span className="text-bb-dim text-xxs w-10 text-right">
                     {pct.toFixed(1)}%
                   </span>
                 </div>
@@ -226,17 +222,15 @@ export default async function ProtocolPage({ params }: Props) {
       />
 
       {/* Links */}
-      <div className="border border-terminal-border p-4">
-        <div className="text-xs text-terminal-muted uppercase tracking-wider mb-3">
-          Links
-        </div>
-        <div className="flex gap-4 text-sm font-mono">
+      <div className="bg-bb-panel border border-bb-border">
+        <div className="bb-header">Links</div>
+        <div className="flex gap-3 px-3 py-2 text-xs font-mono">
           {detail.url && (
             <a
               href={detail.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-terminal-blue hover:underline"
+              className="text-bb-blue hover:text-bb-orange transition"
             >
               Website
             </a>
@@ -246,7 +240,7 @@ export default async function ProtocolPage({ params }: Props) {
               href={`https://twitter.com/${detail.twitter}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-terminal-blue hover:underline"
+              className="text-bb-blue hover:text-bb-orange transition"
             >
               Twitter
             </a>
@@ -255,7 +249,7 @@ export default async function ProtocolPage({ params }: Props) {
             href={`https://defillama.com/protocol/${slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-terminal-blue hover:underline"
+            className="text-bb-blue hover:text-bb-orange transition"
           >
             DeFiLlama
           </a>

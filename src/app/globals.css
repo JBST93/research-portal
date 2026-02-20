@@ -6,29 +6,54 @@
 
 body {
   font-family: "JetBrains Mono", monospace;
-  background-color: #0a0a0a;
-  color: #e0e0e0;
+  background-color: #0b0e14;
+  color: #c8ccd0;
+  font-size: 13px;
 }
 
 ::selection {
-  background-color: #00ff8833;
+  background-color: #ff8c0033;
   color: #ffffff;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #111111;
+  background: #0f1318;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333333;
-  border-radius: 3px;
+  background: #2a3548;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #444444;
+  background: #3d4f63;
+}
+
+/* Bloomberg-style panel headers */
+.bb-header {
+  @apply bg-bb-header text-bb-orange text-xs font-bold uppercase tracking-widest px-3 py-1.5 border-b border-bb-border;
+}
+
+/* Dense table rows */
+.bb-row {
+  @apply border-b border-bb-border hover:bg-bb-surface transition-colors;
+}
+
+.bb-row td {
+  @apply px-3 py-1.5;
+}
+
+/* Blinking live indicator */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-dot {
+  animation: blink 2s ease-in-out infinite;
 }

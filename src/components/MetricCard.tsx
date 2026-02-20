@@ -9,17 +9,25 @@ export default function MetricCard({
   label,
   value,
   subValue,
-  subColor = "text-terminal-muted",
+  subColor = "text-bb-muted",
 }: MetricCardProps) {
   return (
-    <div className="border border-terminal-border p-4">
-      <div className="text-xs text-terminal-muted uppercase tracking-wider mb-1">
-        {label}
+    <div className="bg-bb-panel border border-bb-border">
+      <div className="bg-bb-header px-3 py-1 border-b border-bb-border">
+        <span className="text-xxs text-bb-orange uppercase tracking-widest font-bold">
+          {label}
+        </span>
       </div>
-      <div className="text-xl text-terminal-text font-mono">{value}</div>
-      {subValue && (
-        <div className={`text-xs font-mono mt-1 ${subColor}`}>{subValue}</div>
-      )}
+      <div className="px-3 py-2">
+        <div className="text-lg text-bb-white font-mono font-semibold">
+          {value}
+        </div>
+        {subValue && (
+          <div className={`text-xxs font-mono mt-0.5 ${subColor}`}>
+            {subValue}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -21,44 +21,45 @@ export default async function Dashboard() {
 
   const totalTvl = protocols.reduce((sum, p) => sum + p.tvl, 0);
   const totalFees = protocols.reduce((sum, p) => sum + (p.fees24h || 0), 0);
-  const avgChange = protocols.reduce((sum, p) => sum + (p.change_1d || 0), 0) / protocols.length;
+  const avgChange =
+    protocols.reduce((sum, p) => sum + (p.change_1d || 0), 0) / protocols.length;
 
   return (
-    <div className="space-y-6">
-      {/* Summary metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="space-y-3 pb-8">
+      {/* Summary row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <MetricCard label="Watchlist TVL" value={formatUSD(totalTvl)} />
+        <MetricCard label="Protocols" value={protocols.length.toString()} />
+        <MetricCard label="Fees 24h" value={formatUSD(totalFees)} />
         <MetricCard
-          label="Watchlist TVL"
-          value={formatUSD(totalTvl)}
-        />
-        <MetricCard
-          label="Protocols"
-          value={protocols.length.toString()}
-        />
-        <MetricCard
-          label="Total Fees 24h"
-          value={formatUSD(totalFees)}
-        />
-        <MetricCard
-          label="Active Proposals"
+          label="Active Votes"
           value={activeProposals.length.toString()}
-          subValue={activeProposals.length > 0 ? "Votes open" : "None"}
-          subColor={activeProposals.length > 0 ? "text-terminal-amber" : "text-terminal-muted"}
+          subValue={
+            activeProposals.length > 0 ? "Votes open now" : "No active votes"
+          }
+          subColor={
+            activeProposals.length > 0 ? "text-bb-amber" : "text-bb-muted"
+          }
         />
       </div>
 
-      {/* Alerts */}
-      <AlertsFeed alerts={alerts} />
+      {/* Two-column layout: table + sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+        {/* Main: protocol table */}
+        <div className="lg:col-span-2 space-y-2">
+          <ProtocolTable protocols={protocols} />
+        </div>
 
-      {/* Protocol table */}
-      <ProtocolTable protocols={protocols} />
-
-      {/* Governance */}
-      <GovernanceFeed
-        proposals={recentProposals}
-        showProtocol={true}
-        title="Governance — Recent Proposals"
-      />
+        {/* Sidebar: alerts + governance */}
+        <div className="space-y-2">
+          <AlertsFeed alerts={alerts} />
+          <GovernanceFeed
+            proposals={recentProposals}
+            showProtocol={true}
+            title="Governance"
+          />
+        </div>
+      </div>
     </div>
   );
 }

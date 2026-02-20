@@ -46,11 +46,11 @@ export function getRiskLabel(level: RiskLevel): string {
 export function getRiskColor(level: RiskLevel): string {
   switch (level) {
     case 1:
-      return "text-terminal-green";
+      return "text-bb-green";
     case 2:
-      return "text-terminal-amber";
+      return "text-bb-amber";
     case 3:
-      return "text-terminal-red";
+      return "text-bb-red";
     case 4:
       return "text-red-600";
   }

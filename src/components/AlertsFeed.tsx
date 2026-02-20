@@ -12,43 +12,41 @@ const severityIcon: Record<string, string> = {
 };
 
 const severityColor: Record<string, string> = {
-  high: "text-terminal-red border-terminal-red/30 bg-terminal-red/5",
-  medium: "text-terminal-amber border-terminal-amber/30 bg-terminal-amber/5",
-  low: "text-terminal-green border-terminal-green/30 bg-terminal-green/5",
+  high: "text-bb-red",
+  medium: "text-bb-amber",
+  low: "text-bb-green",
 };
 
 export default function AlertsFeed({ alerts }: AlertsFeedProps) {
-  if (alerts.length === 0) {
-    return (
-      <div className="border border-terminal-border p-4">
-        <div className="text-xs text-terminal-muted uppercase tracking-wider mb-2">
-          Alerts
-        </div>
-        <div className="text-terminal-green text-sm font-mono">
-          All clear — no alerts
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="border border-terminal-border p-4">
-      <div className="text-xs text-terminal-muted uppercase tracking-wider mb-3">
-        Alerts ({alerts.length})
+    <div className="bg-bb-panel border border-bb-border">
+      <div className="bb-header flex items-center justify-between">
+        <span>Alerts</span>
+        {alerts.length === 0 && (
+          <span className="text-bb-green text-xxs normal-case tracking-normal font-normal">
+            All clear
+          </span>
+        )}
       </div>
-      <div className="space-y-2">
-        {alerts.map((alert, i) => (
-          <Link
-            key={i}
-            href={`/protocol/${alert.slug}`}
-            className={`block border px-3 py-2 font-mono text-sm ${severityColor[alert.severity]} hover:brightness-125 transition`}
-          >
-            <span className="opacity-60">[{severityIcon[alert.severity]}]</span>{" "}
-            <span className="font-semibold">{alert.protocol}</span> —{" "}
-            {alert.message}
-          </Link>
-        ))}
-      </div>
+      {alerts.length > 0 && (
+        <div className="divide-y divide-bb-border">
+          {alerts.map((alert, i) => (
+            <Link
+              key={i}
+              href={`/protocol/${alert.slug}`}
+              className="flex items-center gap-3 px-3 py-1.5 hover:bg-bb-surface transition text-xs"
+            >
+              <span className={`font-bold ${severityColor[alert.severity]}`}>
+                [{severityIcon[alert.severity]}]
+              </span>
+              <span className="text-bb-white font-semibold">
+                {alert.protocol}
+              </span>
+              <span className="text-bb-muted">{alert.message}</span>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

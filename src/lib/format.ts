@@ -13,8 +13,8 @@ export function formatPercent(value: number | null): string {
 }
 
 export function formatPercentColor(value: number | null): string {
-  if (value === null || value === undefined) return "text-terminal-muted";
-  if (value > 0) return "text-terminal-green";
-  if (value < 0) return "text-terminal-red";
-  return "text-terminal-muted";
+  if (value === null || value === undefined) return "text-bb-muted";
+  if (value > 0) return "text-bb-green";
+  if (value < 0) return "text-bb-red";
+  return "text-bb-muted";
 }

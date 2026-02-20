@@ -10,37 +10,38 @@ export default async function ProtocolsPage() {
   const totalTvl = protocols.reduce((sum, p) => sum + p.tvl, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 pb-8">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-terminal-text">
-            Top 100 Protocols by TVL
+        <div className="flex items-center gap-3">
+          <h1 className="text-sm font-bold text-bb-white uppercase tracking-wider">
+            Top 100 Protocols
           </h1>
-          <p className="text-sm text-terminal-muted mt-1">
-            Total: {formatUSD(totalTvl)}
-          </p>
+          <span className="text-xxs text-bb-muted">
+            Total TVL: {formatUSD(totalTvl)}
+          </span>
         </div>
         <Link
           href="/"
-          className="text-sm text-terminal-dim hover:text-terminal-green font-mono transition"
+          className="text-xxs text-bb-dim hover:text-bb-orange uppercase tracking-wider font-mono transition"
         >
           &larr; Watchlist
         </Link>
       </div>
 
-      <div className="border border-terminal-border">
+      <div className="bg-bb-panel border border-bb-border">
+        <div className="bb-header">Protocol Rankings</div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm font-mono">
+          <table className="w-full text-xs font-mono">
             <thead>
-              <tr className="border-b border-terminal-border text-terminal-muted text-xs uppercase tracking-wider">
-                <th className="text-left px-4 py-3 w-10">#</th>
-                <th className="text-left px-4 py-3">Protocol</th>
-                <th className="text-left px-4 py-3">Category</th>
-                <th className="text-right px-4 py-3">TVL</th>
-                <th className="text-right px-4 py-3">24h</th>
-                <th className="text-right px-4 py-3">7d</th>
-                <th className="text-right px-4 py-3">Fees 24h</th>
-                <th className="text-left px-4 py-3">Chains</th>
+              <tr className="border-b border-bb-border text-bb-muted text-xxs uppercase tracking-wider">
+                <th className="text-left px-3 py-2 w-8">#</th>
+                <th className="text-left px-3 py-2">Protocol</th>
+                <th className="text-left px-3 py-2">Category</th>
+                <th className="text-right px-3 py-2">TVL</th>
+                <th className="text-right px-3 py-2">24h</th>
+                <th className="text-right px-3 py-2">7d</th>
+                <th className="text-right px-3 py-2">Fees 24h</th>
+                <th className="text-left px-3 py-2">Chains</th>
               </tr>
             </thead>
             <tbody>
@@ -50,33 +51,33 @@ export default async function ProtocolsPage() {
                   href={`/protocol/${p.slug}`}
                   className="contents"
                 >
-                  <tr className="border-b border-terminal-border hover:bg-terminal-surface cursor-pointer transition-colors">
-                    <td className="px-4 py-2 text-terminal-dim">{i + 1}</td>
-                    <td className="px-4 py-2 text-terminal-text font-semibold">
+                  <tr className="bb-row cursor-pointer">
+                    <td className="px-3 py-1.5 text-bb-dim">{i + 1}</td>
+                    <td className="px-3 py-1.5 text-bb-white font-semibold">
                       {p.name}
                     </td>
-                    <td className="px-4 py-2">
-                      <span className="text-xs px-2 py-0.5 border border-terminal-border-bright text-terminal-muted">
+                    <td className="px-3 py-1.5">
+                      <span className="text-xxs text-bb-orange-dim">
                         {p.category}
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-right text-terminal-text">
+                    <td className="px-3 py-1.5 text-right text-bb-white">
                       {formatUSD(p.tvl)}
                     </td>
                     <td
-                      className={`px-4 py-2 text-right ${formatPercentColor(p.change_1d)}`}
+                      className={`px-3 py-1.5 text-right ${formatPercentColor(p.change_1d)}`}
                     >
                       {formatPercent(p.change_1d)}
                     </td>
                     <td
-                      className={`px-4 py-2 text-right ${formatPercentColor(p.change_7d)}`}
+                      className={`px-3 py-1.5 text-right ${formatPercentColor(p.change_7d)}`}
                     >
                       {formatPercent(p.change_7d)}
                     </td>
-                    <td className="px-4 py-2 text-right text-terminal-text">
+                    <td className="px-3 py-1.5 text-right text-bb-text">
                       {formatUSD(p.fees24h)}
                     </td>
-                    <td className="px-4 py-2 text-terminal-muted text-xs">
+                    <td className="px-3 py-1.5 text-bb-muted text-xxs">
                       {p.chains.slice(0, 3).join(", ")}
                       {p.chains.length > 3 && ` +${p.chains.length - 3}`}
                     </td>

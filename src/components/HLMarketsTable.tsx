@@ -22,27 +22,25 @@ export default function HLMarketsTable({ markets }: HLMarketsTableProps) {
   const displayed = showAll ? sorted : sorted.slice(0, 20);
 
   return (
-    <div className="border border-terminal-border">
-      <div className="px-4 py-3 border-b border-terminal-border flex items-center justify-between">
-        <span className="text-xs text-terminal-muted uppercase tracking-wider">
-          Perp Markets ({markets.length})
-        </span>
-        <div className="flex gap-2">
+    <div className="bg-bb-panel border border-bb-border">
+      <div className="bb-header flex items-center justify-between">
+        <span>Perp Markets ({markets.length})</span>
+        <div className="flex gap-1">
           {(
             [
               ["openInterestUsd", "OI"],
-              ["dayNtlVlm", "Volume"],
-              ["funding", "Funding"],
-              ["priceChange24h", "Change"],
+              ["dayNtlVlm", "Vol"],
+              ["funding", "Fund"],
+              ["priceChange24h", "Chg"],
             ] as [SortKey, string][]
           ).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setSortBy(key)}
-              className={`text-xs px-2 py-0.5 border transition ${
+              className={`text-xxs px-1.5 py-0.5 transition ${
                 sortBy === key
-                  ? "border-terminal-green text-terminal-green"
-                  : "border-terminal-border text-terminal-muted hover:text-terminal-text"
+                  ? "text-bb-orange bg-bb-surface"
+                  : "text-bb-muted hover:text-bb-orange"
               }`}
             >
               {label}
@@ -51,69 +49,60 @@ export default function HLMarketsTable({ markets }: HLMarketsTableProps) {
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm font-mono">
+        <table className="w-full text-xs font-mono">
           <thead>
-            <tr className="border-b border-terminal-border text-terminal-muted text-xs uppercase tracking-wider">
-              <th className="text-left px-4 py-2">Market</th>
-              <th className="text-right px-4 py-2">Price</th>
-              <th className="text-right px-4 py-2">24h Chg</th>
-              <th className="text-right px-4 py-2">Open Interest</th>
-              <th className="text-right px-4 py-2">24h Volume</th>
-              <th className="text-right px-4 py-2">Funding/hr</th>
-              <th className="text-right px-4 py-2">Ann. Rate</th>
-              <th className="text-right px-4 py-2">Leverage</th>
+            <tr className="border-b border-bb-border text-bb-muted text-xxs uppercase tracking-wider">
+              <th className="text-left px-3 py-1.5">Market</th>
+              <th className="text-right px-3 py-1.5">Price</th>
+              <th className="text-right px-3 py-1.5">24h</th>
+              <th className="text-right px-3 py-1.5">OI</th>
+              <th className="text-right px-3 py-1.5">Volume</th>
+              <th className="text-right px-3 py-1.5">Fund/hr</th>
+              <th className="text-right px-3 py-1.5">Ann.</th>
+              <th className="text-right px-3 py-1.5">Lev</th>
             </tr>
           </thead>
           <tbody>
             {displayed.map((m) => (
-              <tr
-                key={m.coin}
-                className="border-b border-terminal-border hover:bg-terminal-surface transition-colors"
-              >
-                <td className="px-4 py-2 text-terminal-text font-semibold">
+              <tr key={m.coin} className="bb-row">
+                <td className="px-3 py-1 text-bb-white font-semibold">
                   {m.coin}
                 </td>
-                <td className="px-4 py-2 text-right text-terminal-text">
+                <td className="px-3 py-1 text-right text-bb-text">
                   {m.markPx < 1
                     ? `$${m.markPx.toPrecision(4)}`
                     : formatUSD(m.markPx)}
                 </td>
                 <td
-                  className={`px-4 py-2 text-right ${
-                    m.priceChange24h >= 0
-                      ? "text-terminal-green"
-                      : "text-terminal-red"
+                  className={`px-3 py-1 text-right ${
+                    m.priceChange24h >= 0 ? "text-bb-green" : "text-bb-red"
                   }`}
                 >
                   {m.priceChange24h >= 0 ? "+" : ""}
                   {m.priceChange24h.toFixed(2)}%
                 </td>
-                <td className="px-4 py-2 text-right text-terminal-text">
+                <td className="px-3 py-1 text-right text-bb-text">
                   {formatUSD(m.openInterestUsd)}
                 </td>
-                <td className="px-4 py-2 text-right text-terminal-text">
+                <td className="px-3 py-1 text-right text-bb-text">
                   {formatUSD(m.dayNtlVlm)}
                 </td>
                 <td
-                  className={`px-4 py-2 text-right ${
-                    m.funding >= 0
-                      ? "text-terminal-green"
-                      : "text-terminal-red"
+                  className={`px-3 py-1 text-right ${
+                    m.funding >= 0 ? "text-bb-green" : "text-bb-red"
                   }`}
                 >
                   {(m.funding * 100).toFixed(4)}%
                 </td>
                 <td
-                  className={`px-4 py-2 text-right ${
-                    m.fundingAnnualized >= 0
-                      ? "text-terminal-green"
-                      : "text-terminal-red"
+                  className={`px-3 py-1 text-right ${
+                    m.fundingAnnualized >= 0 ? "text-bb-green" : "text-bb-red"
                   }`}
                 >
                   {m.fundingAnnualized >= 0 ? "+" : ""}
-                  {m.fundingAnnualized.toFixed(2)}%
+                  {m.fundingAnnualized.toFixed(1)}%
                 </td>
-                <td className="px-4 py-2 text-right text-terminal-muted">
+                <td className="px-3 py-1 text-right text-bb-dim">
                   {m.maxLeverage}x
                 </td>
               </tr>
@@ -124,7 +113,7 @@ export default function HLMarketsTable({ markets }: HLMarketsTableProps) {
       {!showAll && markets.length > 20 && (
         <button
           onClick={() => setShowAll(true)}
-          className="w-full py-2 text-xs text-terminal-muted hover:text-terminal-green border-t border-terminal-border transition"
+          className="w-full py-1.5 text-xxs text-bb-muted hover:text-bb-orange border-t border-bb-border transition uppercase tracking-wider"
         >
           Show all {markets.length} markets
         </button>
