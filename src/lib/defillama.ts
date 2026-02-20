@@ -151,13 +151,16 @@ export async function getTopProtocols(limit: number = 100): Promise<ProtocolData
   });
 }
 
-export async function getDexVolumes(limit: number = 100): Promise<{
+export async function getVolumeData(
+  type: "dexs" | "derivatives" = "dexs",
+  limit: number = 100
+): Promise<{
   dexes: DexVolume[];
   totalVolume24h: number;
   totalVolume7d: number;
 }> {
   const data = await fetchJSON(
-    `${BASE_URL}/overview/dexs?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true`
+    `${BASE_URL}/overview/${type}?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true`
   );
 
   if (!data?.protocols) return { dexes: [], totalVolume24h: 0, totalVolume7d: 0 };

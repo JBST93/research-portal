@@ -1,30 +1,27 @@
 import Link from "next/link";
-import { getDexVolumes } from "@/lib/defillama";
-import { formatUSD, formatPercent, formatPercentColor } from "@/lib/format";
+import { getVolumeData } from "@/lib/defillama";
+import { formatUSD } from "@/lib/format";
 import MetricCard from "@/components/MetricCard";
 import DexTable from "@/components/DexTable";
+import VolumeTabs from "@/components/VolumeTabs";
 
 export const revalidate = 300;
 
 export default async function DexPage() {
-  const { dexes, totalVolume24h, totalVolume7d } = await getDexVolumes(100);
+  const [spotData, perpData] = await Promise.all([
+    getVolumeData("dexs", 100),
+    getVolumeData("derivatives", 100),
+  ]);
 
-  const top5Volume = dexes
-    .slice(0, 5)
-    .reduce((sum, d) => sum + d.volume24h, 0);
-  const top5Dominance =
-    totalVolume24h > 0 ? (top5Volume / totalVolume24h) * 100 : 0;
+  const combinedVolume24h = spotData.totalVolume24h + perpData.totalVolume24h;
 
   return (
     <div className="space-y-3 pb-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-sm font-bold text-bb-white uppercase tracking-wider">
-            DEX Volumes
+            Volume Monitor
           </h1>
-          <span className="text-xxs text-bb-muted">
-            {dexes.length} exchanges tracked
-          </span>
         </div>
         <Link
           href="/"
@@ -34,23 +31,34 @@ export default async function DexPage() {
         </Link>
       </div>
 
-      {/* Summary */}
+      {/* Combined summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <MetricCard label="Total 24h Volume" value={formatUSD(totalVolume24h)} />
-        <MetricCard label="Total 7d Volume" value={formatUSD(totalVolume7d)} />
-        <MetricCard label="DEXes Tracked" value={dexes.length.toString()} />
         <MetricCard
-          label="Top 5 Dominance"
-          value={`${top5Dominance.toFixed(1)}%`}
-          subValue={dexes
-            .slice(0, 5)
-            .map((d) => d.name)
-            .join(", ")}
+          label="Combined 24h Vol"
+          value={formatUSD(combinedVolume24h)}
+        />
+        <MetricCard
+          label="Spot DEX 24h"
+          value={formatUSD(spotData.totalVolume24h)}
+          subValue={`${spotData.dexes.length} exchanges`}
+        />
+        <MetricCard
+          label="Perps 24h"
+          value={formatUSD(perpData.totalVolume24h)}
+          subValue={`${perpData.dexes.length} exchanges`}
+        />
+        <MetricCard
+          label="Perps / Spot Ratio"
+          value={
+            spotData.totalVolume24h > 0
+              ? `${(perpData.totalVolume24h / spotData.totalVolume24h).toFixed(1)}x`
+              : "—"
+          }
         />
       </div>
 
-      {/* Table */}
-      <DexTable dexes={dexes} />
+      {/* Tabbed tables */}
+      <VolumeTabs spotDexes={spotData.dexes} perpDexes={perpData.dexes} />
     </div>
   );
 }
